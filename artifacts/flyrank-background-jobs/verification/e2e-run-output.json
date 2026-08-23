@@ -1,0 +1,154 @@
+{
+  "baseUrl": "http://localhost:80/api",
+  "checkpoint": "live separate API and worker processes",
+  "observedAt": "2026-08-23T08:58:51Z",
+  "normal": {
+    "acceptHttpStatus": 202,
+    "accepted": {
+      "jobId": "297744cc-c518-4a8f-9ef4-1d4e1d4440ea",
+      "status": "pending",
+      "deduplicated": false
+    },
+    "immediateState": {
+      "id": "297744cc-c518-4a8f-9ef4-1d4e1d4440ea",
+      "status": "pending",
+      "textPreview": "A durable queue keeps requests responsive while workers deliver reliable results.",
+      "failureMode": "none",
+      "attemptCount": 0,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.171337+00:00",
+      "startedAt": null,
+      "completedAt": null,
+      "nextRunAt": "2026-08-23T08:58:51.171337+00:00",
+      "lastError": null,
+      "idempotencyKey": "e2e-normal-9142a9fa"
+    },
+    "completedState": {
+      "id": "297744cc-c518-4a8f-9ef4-1d4e1d4440ea",
+      "status": "completed",
+      "textPreview": "A durable queue keeps requests responsive while workers deliver reliable results.",
+      "failureMode": "none",
+      "attemptCount": 1,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.171337+00:00",
+      "startedAt": "2026-08-23T08:58:51.184864+00:00",
+      "completedAt": "2026-08-23T08:58:51.199480+00:00",
+      "nextRunAt": null,
+      "lastError": null,
+      "idempotencyKey": "e2e-normal-9142a9fa"
+    },
+    "resultHttpStatus": 200,
+    "result": {
+      "jobId": "297744cc-c518-4a8f-9ef4-1d4e1d4440ea",
+      "result": {
+        "sentenceCount": 1,
+        "summary": "A durable queue keeps requests responsive while workers deliver reliable results",
+        "topKeywords": [
+          "a",
+          "durable",
+          "queue",
+          "keeps",
+          "requests"
+        ],
+        "wordCount": 11
+      }
+    }
+  },
+  "idempotency": {
+    "firstHttpStatus": 202,
+    "secondHttpStatus": 202,
+    "first": {
+      "jobId": "203bd4ee-c466-40a8-8f6c-705480964601",
+      "status": "pending",
+      "deduplicated": false
+    },
+    "second": {
+      "jobId": "203bd4ee-c466-40a8-8f6c-705480964601",
+      "status": "pending",
+      "deduplicated": true
+    },
+    "sameJobId": true,
+    "persistedMatchingJobCount": 1,
+    "completedState": {
+      "id": "203bd4ee-c466-40a8-8f6c-705480964601",
+      "status": "completed",
+      "textPreview": "One key must be one execution.",
+      "failureMode": "none",
+      "attemptCount": 1,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.248463+00:00",
+      "startedAt": "2026-08-23T08:58:51.319640+00:00",
+      "completedAt": "2026-08-23T08:58:51.323095+00:00",
+      "nextRunAt": null,
+      "lastError": null,
+      "idempotencyKey": "e2e-idempotent-9142a9fa"
+    },
+    "listHttpStatus": 200
+  },
+  "transientFailure": {
+    "acceptHttpStatus": 202,
+    "accepted": {
+      "jobId": "07a2d9fa-5354-40bd-bae5-7b68d8ed35fe",
+      "status": "pending",
+      "deduplicated": false
+    },
+    "retryingState": {
+      "id": "07a2d9fa-5354-40bd-bae5-7b68d8ed35fe",
+      "status": "retrying",
+      "textPreview": "Retry this exactly once.",
+      "failureMode": "transient",
+      "attemptCount": 1,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.367943+00:00",
+      "startedAt": "2026-08-23T08:58:51.428775+00:00",
+      "completedAt": null,
+      "nextRunAt": "2026-08-23T08:58:51.782011+00:00",
+      "lastError": "Controlled transient dependency failure",
+      "idempotencyKey": "e2e-transient-9142a9fa"
+    },
+    "completedState": {
+      "id": "07a2d9fa-5354-40bd-bae5-7b68d8ed35fe",
+      "status": "completed",
+      "textPreview": "Retry this exactly once.",
+      "failureMode": "transient",
+      "attemptCount": 2,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.367943+00:00",
+      "startedAt": "2026-08-23T08:58:51.428775+00:00",
+      "completedAt": "2026-08-23T08:58:51.843083+00:00",
+      "nextRunAt": null,
+      "lastError": null,
+      "idempotencyKey": "e2e-transient-9142a9fa"
+    }
+  },
+  "persistentFailure": {
+    "acceptHttpStatus": 202,
+    "accepted": {
+      "jobId": "3474a080-29f4-457e-ad94-2228bcf13119",
+      "status": "pending",
+      "deduplicated": false
+    },
+    "failedState": {
+      "id": "3474a080-29f4-457e-ad94-2228bcf13119",
+      "status": "failed",
+      "textPreview": "Exhaust the bounded retry budget.",
+      "failureMode": "permanent",
+      "attemptCount": 3,
+      "maxAttempts": 3,
+      "createdAt": "2026-08-23T08:58:51.861994+00:00",
+      "startedAt": "2026-08-23T08:58:51.946980+00:00",
+      "completedAt": "2026-08-23T08:58:53.072939+00:00",
+      "nextRunAt": null,
+      "lastError": "Controlled persistent dependency failure",
+      "idempotencyKey": "e2e-permanent-9142a9fa"
+    },
+    "resultHttpStatus": 409,
+    "resultNotAvailableResponse": {
+      "detail": {
+        "error": "Job result is not available",
+        "status": "failed",
+        "lastError": "Controlled persistent dependency failure"
+      }
+    }
+  }
+}

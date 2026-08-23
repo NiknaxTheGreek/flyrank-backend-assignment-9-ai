@@ -1,0 +1,20 @@
+INFO:     Started server process [1639]
+INFO:     Waiting for application startup.
+{"event": "api_started", "level": "INFO", "process_id": 1639, "role": "api", "timestamp": "2026-08-23T09:09:07.475730+00:00"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8011 (Press CTRL+C to quit)
+{"deduplicated": false, "event": "job_accepted", "job_id": "f977364f-0437-4836-82b0-9710de7962ab", "level": "INFO", "process_id": 1639, "status": "pending", "timestamp": "2026-08-23T09:09:07.542337+00:00"}
+{"deduplicated": false, "event": "job_accepted", "job_id": "1b908c29-110e-4a65-b851-3fb711f99dab", "level": "INFO", "process_id": 1639, "status": "pending", "timestamp": "2026-08-23T09:09:08.855821+00:00"}
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1639]
+INFO:     Started server process [1654]
+INFO:     Waiting for application startup.
+{"event": "api_started", "level": "INFO", "process_id": 1654, "role": "api", "timestamp": "2026-08-23T09:09:11.734667+00:00"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8011 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1654]

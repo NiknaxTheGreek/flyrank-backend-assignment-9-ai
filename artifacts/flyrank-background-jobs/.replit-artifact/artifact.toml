@@ -1,0 +1,39 @@
+kind = "web"
+previewPath = "/"
+title = "FlyRank Background Jobs"
+description = "A demonstrable FastAPI and SQLite background-job service for the FlyRank Backend Assignment 9 lifecycle, paired with a lightweight web interface for submitting text-analysis jobs and inspecting status, retries, results, and failures."
+version = "1.0.0"
+id = "artifacts/flyrank-background-jobs"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26112
+
+[services.development]
+run = "pnpm --filter @workspace/flyrank-background-jobs run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/flyrank-background-jobs", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/flyrank-background-jobs/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26112"
+BASE_PATH = "/"
+
+[[services]]
+name = "api"
+paths = [ "/api" ]
+localPort = 8000
+
+[services.development]
+run = "python -m uvicorn backend.app:app --host 0.0.0.0 --port $PORT"
+
+[services.env]
+PORT = "8000"

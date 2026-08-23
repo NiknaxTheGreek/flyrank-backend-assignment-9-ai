@@ -1,0 +1,677 @@
+{
+  "baseUrl": "http://127.0.0.1:8011/api",
+  "executionHoldSeconds": 0.45,
+  "permanentLifecycle": {
+    "acceptHttpStatus": 202,
+    "accepted": {
+      "deduplicated": false,
+      "jobId": "1b908c29-110e-4a65-b851-3fb711f99dab",
+      "status": "pending"
+    },
+    "failed": {
+      "attemptCount": 3,
+      "completedAt": "2026-08-23T09:09:10.978915+00:00",
+      "createdAt": "2026-08-23T09:09:08.852810+00:00",
+      "failureMode": "permanent",
+      "id": "1b908c29-110e-4a65-b851-3fb711f99dab",
+      "idempotencyKey": "trace-de737a4488-permanent",
+      "lastError": "Controlled persistent dependency failure",
+      "maxAttempts": 3,
+      "nextRunAt": null,
+      "startedAt": "2026-08-23T09:09:08.859219+00:00",
+      "status": "failed",
+      "textPreview": "Correlated evidence job for permanent mode."
+    },
+    "jobId": "1b908c29-110e-4a65-b851-3fb711f99dab",
+    "observedStatuses": [
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 0,
+        "lastError": null,
+        "status": "pending"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 1,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:09Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 2,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:10Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:11Z",
+        "attemptCount": 3,
+        "lastError": "Controlled persistent dependency failure",
+        "status": "failed"
+      }
+    ],
+    "result": {
+      "detail": {
+        "error": "Job result is not available",
+        "lastError": "Controlled persistent dependency failure",
+        "status": "failed"
+      }
+    },
+    "resultHttpStatus": 409,
+    "retrying": {
+      "attemptCount": 1,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:08.852810+00:00",
+      "failureMode": "permanent",
+      "id": "1b908c29-110e-4a65-b851-3fb711f99dab",
+      "idempotencyKey": "trace-de737a4488-permanent",
+      "lastError": "Controlled persistent dependency failure",
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:09.563292+00:00",
+      "startedAt": "2026-08-23T09:09:08.859219+00:00",
+      "status": "retrying",
+      "textPreview": "Correlated evidence job for permanent mode."
+    },
+    "running": {
+      "attemptCount": 1,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:08.852810+00:00",
+      "failureMode": "permanent",
+      "id": "1b908c29-110e-4a65-b851-3fb711f99dab",
+      "idempotencyKey": "trace-de737a4488-permanent",
+      "lastError": null,
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:08.852810+00:00",
+      "startedAt": "2026-08-23T09:09:08.859219+00:00",
+      "status": "running",
+      "textPreview": "Correlated evidence job for permanent mode."
+    }
+  },
+  "processes": {
+    "apiInitial": {
+      "command": [
+        "/home/runner/workspace/.pythonlibs/bin/python",
+        "-m",
+        "uvicorn",
+        "backend.app:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8011",
+        "--no-access-log"
+      ],
+      "pid": 1639
+    },
+    "apiRestarted": {
+      "command": [
+        "/home/runner/workspace/.pythonlibs/bin/python",
+        "-m",
+        "uvicorn",
+        "backend.app:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8011",
+        "--no-access-log"
+      ],
+      "pid": 1654
+    },
+    "workerInitial": {
+      "command": [
+        "/home/runner/workspace/.pythonlibs/bin/python",
+        "-m",
+        "backend.worker"
+      ],
+      "pid": 1645
+    },
+    "workerRestarted": {
+      "command": [
+        "/home/runner/workspace/.pythonlibs/bin/python",
+        "-m",
+        "backend.worker"
+      ],
+      "pid": 1660
+    }
+  },
+  "purpose": "Correlated separate-process lifecycle evidence",
+  "restartPersistence": {
+    "jobId": "f977364f-0437-4836-82b0-9710de7962ab",
+    "persistenceVerified": true,
+    "result": {
+      "jobId": "f977364f-0437-4836-82b0-9710de7962ab",
+      "result": {
+        "sentenceCount": 1,
+        "summary": "Correlated evidence job for transient mode",
+        "topKeywords": [
+          "correlated",
+          "evidence",
+          "job",
+          "for",
+          "transient"
+        ],
+        "wordCount": 6
+      }
+    },
+    "resultHttpStatus": 200,
+    "status": {
+      "attemptCount": 2,
+      "completedAt": "2026-08-23T09:09:08.793444+00:00",
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": null,
+      "maxAttempts": 3,
+      "nextRunAt": null,
+      "startedAt": "2026-08-23T09:09:07.621972+00:00",
+      "status": "completed",
+      "textPreview": "Correlated evidence job for transient mode."
+    },
+    "statusHttpStatus": 200
+  },
+  "traceId": "trace-de737a4488",
+  "transientLifecycle": {
+    "acceptHttpStatus": 202,
+    "accepted": {
+      "deduplicated": false,
+      "jobId": "f977364f-0437-4836-82b0-9710de7962ab",
+      "status": "pending"
+    },
+    "completed": {
+      "attemptCount": 2,
+      "completedAt": "2026-08-23T09:09:08.793444+00:00",
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": null,
+      "maxAttempts": 3,
+      "nextRunAt": null,
+      "startedAt": "2026-08-23T09:09:07.621972+00:00",
+      "status": "completed",
+      "textPreview": "Correlated evidence job for transient mode."
+    },
+    "jobId": "f977364f-0437-4836-82b0-9710de7962ab",
+    "observedStatuses": [
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 0,
+        "lastError": null,
+        "status": "pending"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 0,
+        "lastError": null,
+        "status": "pending"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:07Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": null,
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 1,
+        "lastError": "Controlled transient dependency failure",
+        "status": "retrying"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": "Controlled transient dependency failure",
+        "status": "running"
+      },
+      {
+        "at": "2026-08-23T09:09:08Z",
+        "attemptCount": 2,
+        "lastError": null,
+        "status": "completed"
+      }
+    ],
+    "pending": {
+      "attemptCount": 0,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": null,
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:07.532495+00:00",
+      "startedAt": null,
+      "status": "pending",
+      "textPreview": "Correlated evidence job for transient mode."
+    },
+    "result": {
+      "jobId": "f977364f-0437-4836-82b0-9710de7962ab",
+      "result": {
+        "sentenceCount": 1,
+        "summary": "Correlated evidence job for transient mode",
+        "topKeywords": [
+          "correlated",
+          "evidence",
+          "job",
+          "for",
+          "transient"
+        ],
+        "wordCount": 6
+      }
+    },
+    "resultHttpStatus": 200,
+    "retrying": {
+      "attemptCount": 1,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": "Controlled transient dependency failure",
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:08.328553+00:00",
+      "startedAt": "2026-08-23T09:09:07.621972+00:00",
+      "status": "retrying",
+      "textPreview": "Correlated evidence job for transient mode."
+    },
+    "runningAttemptOne": {
+      "attemptCount": 1,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": null,
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:07.532495+00:00",
+      "startedAt": "2026-08-23T09:09:07.621972+00:00",
+      "status": "running",
+      "textPreview": "Correlated evidence job for transient mode."
+    },
+    "runningAttemptTwo": {
+      "attemptCount": 2,
+      "completedAt": null,
+      "createdAt": "2026-08-23T09:09:07.532495+00:00",
+      "failureMode": "transient",
+      "id": "f977364f-0437-4836-82b0-9710de7962ab",
+      "idempotencyKey": "trace-de737a4488-transient",
+      "lastError": "Controlled transient dependency failure",
+      "maxAttempts": 3,
+      "nextRunAt": "2026-08-23T09:09:08.328553+00:00",
+      "startedAt": "2026-08-23T09:09:07.621972+00:00",
+      "status": "running",
+      "textPreview": "Correlated evidence job for transient mode."
+    }
+  }
+}

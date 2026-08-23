@@ -1,0 +1,264 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: jobs
+    description: Durable background job operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /jobs:
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Accept a text analysis job
+      description: Persists and accepts a job without waiting for worker execution.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "202":
+          description: Job accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List recent jobs
+      responses:
+        "200":
+          description: Recent jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+  /jobs/summary:
+    get:
+      operationId: getJobSummary
+      tags: [jobs]
+      summary: Get job state counts and worker observability
+      responses:
+        "200":
+          description: Job system summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobSummary"
+  /jobs/{jobId}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a job's current status
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Current job state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /jobs/{jobId}/result:
+    get:
+      operationId: getJobResult
+      tags: [jobs]
+      summary: Get the result of a completed job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Completed result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobResult"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Job is not completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobUnavailable"
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: A stable client-generated key used to deduplicate submissions.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    ValidationError:
+      description: Request failed validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: The requested job does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    JobInput:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: Text to analyze.
+        failureMode:
+          type: string
+          enum: [none, transient, permanent]
+          default: none
+          description: Deterministic test-only failure mode.
+    JobAccepted:
+      type: object
+      required: [jobId, status, deduplicated]
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, retrying, completed, failed]
+        deduplicated:
+          type: boolean
+    Job:
+      type: object
+      required:
+        - id
+        - status
+        - textPreview
+        - failureMode
+        - attemptCount
+        - maxAttempts
+        - createdAt
+        - idempotencyKey
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, retrying, completed, failed]
+        textPreview:
+          type: string
+        failureMode:
+          type: string
+          enum: [none, transient, permanent]
+        attemptCount:
+          type: number
+          minimum: 0
+        maxAttempts:
+          type: number
+          minimum: 1
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: [string, "null"]
+          format: date-time
+        completedAt:
+          type: [string, "null"]
+          format: date-time
+        nextRunAt:
+          type: [string, "null"]
+          format: date-time
+        lastError:
+          type: [string, "null"]
+        idempotencyKey:
+          type: string
+    JobResult:
+      type: object
+      required: [jobId, result]
+      properties:
+        jobId:
+          type: string
+        result:
+          type: object
+          additionalProperties: true
+    JobUnavailable:
+      type: object
+      required: [error, status]
+      properties:
+        error:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, retrying, failed]
+        lastError:
+          type: [string, "null"]
+    JobSummary:
+      type: object
+      required: [total, pending, running, retrying, completed, failed]
+      properties:
+        total:
+          type: number
+        pending:
+          type: number
+        running:
+          type: number
+        retrying:
+          type: number
+        completed:
+          type: number
+        failed:
+          type: number
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+

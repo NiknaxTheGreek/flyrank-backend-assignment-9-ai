@@ -1,0 +1,26 @@
+[
+  {
+    "attempt_count": 2,
+    "completed_at": "2026-08-23T09:09:08.793444+00:00",
+    "created_at": "2026-08-23T09:09:07.532495+00:00",
+    "execution_count": 2,
+    "failure_mode": "transient",
+    "id": "f977364f-0437-4836-82b0-9710de7962ab",
+    "last_error": null,
+    "max_attempts": 3,
+    "started_at": "2026-08-23T09:09:07.621972+00:00",
+    "status": "completed"
+  },
+  {
+    "attempt_count": 3,
+    "completed_at": "2026-08-23T09:09:10.978915+00:00",
+    "created_at": "2026-08-23T09:09:08.852810+00:00",
+    "execution_count": 3,
+    "failure_mode": "permanent",
+    "id": "1b908c29-110e-4a65-b851-3fb711f99dab",
+    "last_error": "Controlled persistent dependency failure",
+    "max_attempts": 3,
+    "started_at": "2026-08-23T09:09:08.859219+00:00",
+    "status": "failed"
+  }
+]

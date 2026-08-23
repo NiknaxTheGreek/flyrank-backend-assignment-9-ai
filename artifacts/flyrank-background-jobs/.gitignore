@@ -1,0 +1,10 @@
+data/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# These two structured logs are intentional, scrubbed Assignment 9 acceptance
+# evidence. Keep them in source control even though the workspace ignores
+# general .log files.
+!verification/correlated-api.log
+!verification/correlated-worker.log
