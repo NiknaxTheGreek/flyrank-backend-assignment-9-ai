@@ -9,3 +9,10 @@ dependencies = [
     "pytest>=9.1.1",
     "uvicorn>=0.52.4",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "artifacts/flyrank-background-jobs"}
+
+[tool.setuptools.packages.find]
+where = ["artifacts/flyrank-background-jobs"]
+include = ["backend*"]

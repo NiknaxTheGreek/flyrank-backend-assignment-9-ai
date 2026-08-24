@@ -1,0 +1,181 @@
+name: Assignment 9 S3 Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/flyrank-background-jobs/backend/**"
+      - "artifacts/flyrank-background-jobs/tests/**"
+      - "artifacts/flyrank-background-jobs/verification/**"
+      - "pyproject.toml"
+      - "README.md"
+      - ".github/workflows/assignment-9-s3.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install packaged job service
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Compile backend
+        run: python -m compileall -q artifacts/flyrank-background-jobs/backend
+
+      - name: Run lifecycle tests
+        env:
+          PYTHONPATH: artifacts/flyrank-background-jobs
+        run: python -m pytest artifacts/flyrank-background-jobs/tests -q
+
+      - name: Prove separate-process lifecycle, retries, failure and restart
+        run: |
+          set -euo pipefail
+          python artifacts/flyrank-background-jobs/verification/correlated_runtime_trace.py \
+            | tee /tmp/a9-correlated-output.txt
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('artifacts/flyrank-background-jobs/verification/correlated-runtime-observations.json')
+          data = json.loads(path.read_text())
+          transient = data['transientLifecycle']
+          permanent = data['permanentLifecycle']
+          restart = data['restartPersistence']
+          processes = data['processes']
+
+          assert transient['acceptHttpStatus'] == 202
+          assert transient['pending']['status'] == 'pending'
+          assert transient['runningAttemptOne']['status'] == 'running'
+          assert transient['retrying']['status'] == 'retrying'
+          assert transient['runningAttemptTwo']['status'] == 'running'
+          assert transient['completed']['status'] == 'completed'
+          assert transient['resultHttpStatus'] == 200
+          assert permanent['acceptHttpStatus'] == 202
+          assert permanent['retrying']['status'] == 'retrying'
+          assert permanent['failed']['status'] == 'failed'
+          assert permanent['resultHttpStatus'] == 409
+          assert restart['persistenceVerified'] is True
+          assert processes['apiInitial']['pid'] != processes['workerInitial']['pid']
+          assert processes['apiRestarted']['pid'] != processes['workerRestarted']['pid']
+          print('A9_CORRELATED_LIFECYCLE_GATE=PASS')
+          PY
+
+      - name: Prove duplicate idempotency and retained result
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB="$RUNNER_TEMP/a9-e2e.sqlite3"
+          API_LOG="$RUNNER_TEMP/a9-e2e-api.log"
+          WORKER_LOG="$RUNNER_TEMP/a9-e2e-worker.log"
+          rm -f "$DB" "$DB-wal" "$DB-shm"
+
+          export JOB_DB_PATH="$DB"
+          export JOB_MAX_ATTEMPTS=3
+          export JOB_RETRY_DELAY_SECONDS=0.35
+          export WORKER_POLL_SECONDS=0.03
+          export JOB_EXECUTION_HOLD_SECONDS=0.12
+
+          python -m uvicorn backend.app:app --host 127.0.0.1 --port 8012 --no-access-log > "$API_LOG" 2>&1 &
+          API_PID=$!
+          python -m backend.worker > "$WORKER_LOG" 2>&1 &
+          WORKER_PID=$!
+          trap 'kill $API_PID $WORKER_PID 2>/dev/null || true' EXIT
+
+          for attempt in {1..80}; do
+            if curl -fsS http://127.0.0.1:8012/api/healthz >/dev/null 2>&1; then
+              break
+            fi
+            sleep 0.1
+          done
+          curl -fsS http://127.0.0.1:8012/api/healthz
+
+          E2E_BASE_URL=http://127.0.0.1:8012/api \
+          JOB_DB_PATH="$DB" \
+          python artifacts/flyrank-background-jobs/verification/e2e_checkpoint.py \
+            | tee /tmp/a9-e2e-output.txt
+
+          JOB_ID=$(tr -d '\r\n' < artifacts/flyrank-background-jobs/verification/restart-job-id.txt)
+
+          kill "$WORKER_PID" "$API_PID" 2>/dev/null || true
+          wait "$WORKER_PID" 2>/dev/null || true
+          wait "$API_PID" 2>/dev/null || true
+
+          python -m uvicorn backend.app:app --host 127.0.0.1 --port 8012 --no-access-log >> "$API_LOG" 2>&1 &
+          API_PID=$!
+          python -m backend.worker >> "$WORKER_LOG" 2>&1 &
+          WORKER_PID=$!
+
+          for attempt in {1..80}; do
+            if curl -fsS http://127.0.0.1:8012/api/healthz >/dev/null 2>&1; then
+              break
+            fi
+            sleep 0.1
+          done
+
+          E2E_BASE_URL=http://127.0.0.1:8012/api \
+          JOB_DB_PATH="$DB" \
+          python artifacts/flyrank-background-jobs/verification/e2e_checkpoint.py --verify-restart "$JOB_ID"
+
+          cp "$API_LOG" /tmp/a9-e2e-api.log
+          cp "$WORKER_LOG" /tmp/a9-e2e-worker.log
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('artifacts/flyrank-background-jobs/verification/e2e-observations.json').read_text())
+          snapshot = json.loads(Path('artifacts/flyrank-background-jobs/verification/database-snapshot.json').read_text())
+          idem = data['idempotency']
+          transient = data['transientFailure']
+          failed = data['persistentFailure']
+          restart = data['afterRestart']
+          idem_row = next(row for row in snapshot if row['id'] == idem['first']['jobId'])
+
+          assert idem['firstHttpStatus'] == 202
+          assert idem['secondHttpStatus'] == 202
+          assert idem['sameJobId'] is True
+          assert idem['persistedMatchingJobCount'] == 1
+          assert idem_row['execution_count'] == 1
+          assert transient['retryingState']['status'] == 'retrying'
+          assert transient['completedState']['status'] == 'completed'
+          assert failed['failedState']['status'] == 'failed'
+          assert failed['resultHttpStatus'] == 409
+          assert restart['persistenceVerified'] is True
+          print('A9_IDEMPOTENCY_RETRY_RESTART_GATE=PASS')
+          PY
+
+      - name: Upload current Assignment 9 runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assignment-9-background-job-evidence
+          path: |
+            artifacts/flyrank-background-jobs/verification/correlated-runtime-observations.json
+            artifacts/flyrank-background-jobs/verification/correlated-runtime-database-snapshot.json
+            artifacts/flyrank-background-jobs/verification/correlated-api.log
+            artifacts/flyrank-background-jobs/verification/correlated-worker.log
+            artifacts/flyrank-background-jobs/verification/e2e-observations.json
+            artifacts/flyrank-background-jobs/verification/database-snapshot.json
+            /tmp/a9-correlated-output.txt
+            /tmp/a9-e2e-output.txt
+            /tmp/a9-e2e-api.log
+            /tmp/a9-e2e-worker.log
+          if-no-files-found: warn

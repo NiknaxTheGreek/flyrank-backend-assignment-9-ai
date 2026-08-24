@@ -1,20 +1,35 @@
-# Requirements audit
+# Assignment 9 recovered-S3 requirements audit
 
-| Preserved requirement | Implementation evidence |
-| --- | --- |
-| Independent first background-job project | `artifacts/flyrank-background-jobs/` is isolated from any human assignment implementation. |
-| FastAPI + SQLite | `backend/app.py`, `backend/db.py`; SQLite database path is configurable. |
-| Genuine separate worker | `backend/worker.py` is a long-running process, separate from the API process. |
-| 202 before completion | `POST /api/jobs` persists only; worker claims later. |
-| Input validation + idempotency | Pydantic validation and unique `jobs.idempotency_key`. |
-| Persisted lifecycle states / timestamps / attempts / errors / result | `jobs` schema includes all requested fields. |
-| Atomic safe claims | `BEGIN IMMEDIATE` plus guarded update in `JobStore.claim_next`. |
-| Bounded retry/backoff | `max_attempts`, `next_run_at`, increasing delay, terminal `failed`. |
-| Controlled transient and persistent failure | `Worker._execute`; documented deterministic modes. |
-| Retry side-effect idempotency | unique `job_effects.job_id`, `INSERT OR IGNORE`. |
-| Status/result semantics | `GET /api/jobs/{id}` and `/result`; 409 for non-completed state, 404 for missing. |
-| Worker restart recovery | stale `running` state is returned to `retrying` on worker startup. |
-| Structured logs without secret leakage | `backend/logging.py`; lifecycle context excludes input text/key. Correlated API/worker logs preserve job IDs, attempts, states, and process IDs without payload text or idempotency keys. |
-| Automated tests | `tests/test_lifecycle.py`. |
-| Required evidence files | README, audit, source-gap doc, verification evidence, baseline E2E output, correlated runtime trace, API/worker logs, database snapshots, and fresh check transcripts are included. |
-| Human-vs-AI rematch | Explicitly pending; no human implementation was used. |
+| S3 requirement | Current implementation/evidence | Status |
+| --- | --- | --- |
+| Move slow work outside HTTP request | `POST /api/jobs` persists work only; `backend.worker` executes it in a separate process | PASS |
+| Immediate acceptance | Submission returns HTTP `202` with a job ID before worker completion | PASS |
+| Job can be identified | Every accepted job has a persisted UUID | PASS |
+| Status endpoint | `GET /api/jobs/{id}` exposes lifecycle state, attempts, timestamps and safe failure fields | PASS |
+| Result can be retrieved | `GET /api/jobs/{id}/result` returns the result after completion and a controlled non-success response before/after failure | PASS |
+| Durable state/result | SQLite persists jobs/results across API and worker restarts | PASS |
+| Separate worker | `backend/worker.py` runs independently from the FastAPI process; current CI records distinct process IDs | PASS |
+| Idempotency because jobs may run twice | unique `jobs.idempotency_key` deduplicates submission; unique `job_effects.job_id` protects completion effects | PASS |
+| Retries because jobs will fail | retryable failures move to `retrying` with bounded attempts and increasing delay; persistent failure becomes terminal | PASS |
+| Failure visibility / observability | persisted `failed` status, attempt count and `lastError` plus structured lifecycle logs make terminal failure visible | PASS |
+| Restart/recovery behavior | stale `running` jobs are recovered to retryable state; completed result remains available after process restart | PASS |
+| Automated verification | Python lifecycle suite plus current GitHub Actions S3 runtime gate | PASS |
+| Documentation/repository clarity | root README plus detailed nested README, audit, assumptions and evidence docs | PASS |
+
+## Current checkpoint
+
+GitHub Actions run `32712518867` passed the current branch with:
+
+- clean `pip install .` from the repository root;
+- Python compilation;
+- **10 lifecycle tests passed**;
+- `A9_CORRELATED_LIFECYCLE_GATE=PASS` after a real API + separate-worker trace showing `pending → running → retrying → running → completed`, terminal failure and restart persistence;
+- `A9_IDEMPOTENCY_RETRY_RESTART_GATE=PASS` after duplicate submissions returned the same job, one persisted job row executed once, retries were observed, terminal failure stayed visible, and a completed result survived API/worker restart.
+
+## Technology boundary
+
+Recovered S3 explicitly leaves queue provider, worker framework, route names, database schema, retry counts and alert provider unspecified. FastAPI, SQLite, polling, the exact status names and deterministic text analysis are therefore implementation choices rather than FlyRank-mandated details.
+
+## S4 boundary
+
+Recovered S3 records no separate explicit S4 prompt/rematch exercise for Assignment 9.
