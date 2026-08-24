@@ -1,26 +1,33 @@
-# Source gap and implementation assumptions
+# Recovered S3 boundary and implementation assumptions
 
-## Recovered FlyRank requirements
+## Authoritative FlyRank requirements now available
 
-The available request explicitly preserves these assignment requirements:
+The recovered S3 Assignment 9 source is now the acceptance baseline. It requires the conceptual lifecycle:
 
-- A durable request → accepted job → separate worker → status/result lifecycle.
-- SQLite persistence, retries, idempotency, observable failures, and controlled failure modes.
-- HTTP 202 acceptance before completion, status/result endpoints, and automated/E2E verification.
-- No comparison with the separate human Assignment 9 implementation until it exists.
+```text
+client submits work → API returns 202 Accepted → worker executes outside the request lifecycle → persisted status/result can be queried
+```
 
-## Source boundary
+It also explicitly requires the three reliability realities:
 
-The original full S3 assignment brief is not available in this chat. This project did **not** inspect, copy, compare with, or infer requirements from any separate human Assignment 9 implementation.
+1. jobs may run twice → design for idempotency;
+2. jobs will fail → implement retries;
+3. someone must know → keep failures visible/observable.
 
-## Documented implementation assumptions
+S3 does **not** prescribe the queue provider, worker framework, route names, status vocabulary, database schema, retry count, alert provider, or exact slow operation. Assignment 6's LLM call is suggested as a candidate, not mandated.
 
-1. **Endpoint shape:** `/api/jobs` plus conventional status/result endpoints are used because the preserved request did not provide a required route naming scheme.
-2. **Idempotency transport:** `Idempotency-Key` is required as an HTTP header and unique in SQLite.
-3. **Attempt budget:** the default is three total attempts, configurable by `JOB_MAX_ATTEMPTS`.
-4. **Failure modes:** `transient` fails once then succeeds; `permanent` models a repeatedly retryable outage and demonstrates eventual terminal failure after the bounded budget.
-5. **Recovery model:** a single-node worker uses a `claimed_at` lease. Jobs stale for `JOB_STALE_RUNNING_SECONDS` become retryable on worker startup.
-6. **Business operation:** text analysis is intentionally small and deterministic so job-system semantics remain the assignment focus.
-7. **No external queue:** SQLite is the durable queue and is suitable for this single-node demonstration, not a multi-node production queue.
+## Local implementation choices
 
-No additional mandatory product features are assumed.
+1. **Business operation:** deterministic text analysis keeps the assignment focused on job mechanics rather than external-provider variability.
+2. **API shape:** `/api/jobs`, `/api/jobs/{id}`, and `/api/jobs/{id}/result` are local route choices.
+3. **Persistence/queue:** SQLite stores both durable job state and queue timing for this single-node demonstration.
+4. **Idempotency transport:** callers supply `Idempotency-Key`; the database enforces uniqueness and repeated submissions return the original job.
+5. **Side-effect idempotency:** `job_effects.job_id` is unique and completion uses an idempotent insert so a repeated worker execution does not duplicate the completion effect.
+6. **Retry budget:** three total attempts by default, configurable through `JOB_MAX_ATTEMPTS`.
+7. **Failure modes:** `transient` fails once then succeeds; `permanent` simulates a repeatedly retryable dependency outage until the bounded retry budget is exhausted.
+8. **Recovery model:** stale `running` work is returned to `retrying` on worker startup using a single-node SQLite lease assumption.
+9. **Observability:** structured API/worker lifecycle logs plus persisted status, attempts and `lastError` make failures inspectable without logging the submitted text or idempotency key.
+
+## S4 boundary
+
+Recovered S3 states that Assignments 8 and 9 currently have **no separate explicit S4 prompt/rematch exercise**. No additional Assignment 9 AI Rematch is claimed or required from the currently available source.
