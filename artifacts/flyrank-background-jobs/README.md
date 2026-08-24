@@ -1,31 +1,22 @@
 # FlyRank Backend Assignment 9 — First Background Job
 
-A deliberately small FastAPI + SQLite job system demonstrating the lifecycle:
+A deliberately small FastAPI + SQLite background-job system demonstrating the recovered S3 lifecycle:
 
-`request → accepted (202) → persisted pending job → separately running worker → status/result`
-
-The business operation is a simple deterministic text analysis. The focus is the job system: durable state, safe claiming, retries, idempotency, observability, and recovery.
-
-## Run
-
-Start the API and worker in **separate terminals/processes**:
-
-```bash
-python -m uvicorn backend.app:app --app-dir artifacts/flyrank-background-jobs --host 0.0.0.0 --port 8000
-python -m backend.worker
+```text
+request → 202 Accepted → persisted pending job → separate worker → status/result
 ```
 
-The web interface calls the API at `/api`. For local standalone work, set `JOB_DB_PATH` consistently for both processes.
+The selected slow-operation stand-in is deterministic text analysis so the assignment can focus on asynchronous execution, retries, idempotency, observability and restart behavior without depending on an external provider.
 
 ## API
 
 | Endpoint | Behavior |
 | --- | --- |
-| `POST /api/jobs` | Requires `Idempotency-Key`; validates input and returns `202` with a job identifier. |
+| `POST /api/jobs` | Requires `Idempotency-Key`; validates input and returns HTTP `202` with a job identifier. |
 | `GET /api/jobs` | Lists recent persisted jobs. |
-| `GET /api/jobs/summary` | State counts for the job system. |
-| `GET /api/jobs/{jobId}` | Returns status, attempts, timestamps, and safe observability fields. |
-| `GET /api/jobs/{jobId}/result` | Returns `200` only when completed; `409` while active or failed; `404` when missing. |
+| `GET /api/jobs/summary` | Returns state counts for the job system. |
+| `GET /api/jobs/{jobId}` | Returns persisted status, attempts, timestamps and failure fields. |
+| `GET /api/jobs/{jobId}/result` | Returns `200` only when completed; controlled non-success response otherwise. |
 
 Request body:
 
@@ -33,28 +24,62 @@ Request body:
 {"text":"Useful text to analyze.","failureMode":"none"}
 ```
 
-`failureMode` can be:
+`failureMode` is a deterministic verification switch:
 
-- `none` — completes normally.
-- `transient` — fails once with a controlled retryable error, then succeeds.
-- `permanent` — simulates a retryable dependency outage on every attempt and visibly becomes `failed` after the bounded retry budget. It is named for the persistent outage, not because the error is non-retryable.
+- `none` — completes normally;
+- `transient` — fails once, is retried, then succeeds;
+- `permanent` — simulates a repeatedly retryable dependency outage until the bounded attempt budget is exhausted and the job becomes `failed`.
 
-## Design notes
+The exact route names, SQLite, status vocabulary, retry count and business operation are local choices because recovered S3 does not prescribe them.
 
-- **Durability:** Jobs and results live in SQLite; API and worker recreate their repositories from the same file.
-- **Safe claiming:** `BEGIN IMMEDIATE` protects the queued-to-running claim, so two workers cannot claim the same due job.
-- **Idempotency:** A unique `idempotency_key` returns the original job for repeated submissions. A unique `job_effects.job_id` prevents repeated completion side effects if a worker retries after a crash.
-- **Retries:** Only `RetryableJobError` schedules a retry, with a bounded max attempt count and increasing delay. Non-retryable errors become terminal immediately.
-- **Crash recovery:** Worker startup returns stale `running` jobs to `retrying`. Assumption: a job whose lease (`claimed_at`) is older than `JOB_STALE_RUNNING_SECONDS` belongs to an unavailable worker. This is a pragmatic single-node SQLite lease, not distributed coordination.
-- **Logs:** API and worker emit structured JSON containing lifecycle fields (event, job id, attempt, status, error type) but omit job text and idempotency values.
-- **Evidence-only running window:** `JOB_EXECUTION_HOLD_SECONDS` defaults to `0`. The correlated verification harness may set a short value in its isolated processes so the real `running` state can be observed; it is not required for normal operation.
+## Run
 
-## Tests
+Install from the repository root:
 
 ```bash
-PYTHONPATH=artifacts/flyrank-background-jobs pytest artifacts/flyrank-background-jobs/tests -q
+python -m pip install .
 ```
 
-The tests cover acceptance, prompt response, validation, idempotency, result rules, normal completion, retry success, terminal exhaustion, side-effect idempotency, persistence, and recovery scaffolding.
+Then start the API and worker in **separate terminals/processes**:
 
-See `REQUIREMENTS_AUDIT.md`, `VERIFICATION_EVIDENCE.md`, and `SOURCE_GAP_AND_ASSUMPTIONS.md` for scope, evidence, and source limits. The strongest reproducible runtime proof is `verification/correlated_runtime_trace.py`.
+```bash
+python -m uvicorn backend.app:app \
+  --app-dir artifacts/flyrank-background-jobs \
+  --host 127.0.0.1 \
+  --port 8000
+
+python -m backend.worker
+```
+
+If `JOB_DB_PATH` is overridden, both processes must point to the same database file.
+
+## Reliability design
+
+- **Durability:** jobs and results live in SQLite rather than process memory.
+- **Safe claiming:** `BEGIN IMMEDIATE` plus a guarded update prevents two local workers from claiming the same due job simultaneously.
+- **Submission idempotency:** `jobs.idempotency_key` is unique; repeated submissions with the same key return the original job.
+- **Side-effect idempotency:** `job_effects.job_id` is unique and completion uses an idempotent insert, protecting the completion effect if execution is repeated.
+- **Retries:** retryable failures move to `retrying` with a bounded attempt count and increasing delay.
+- **Failure visibility:** terminal failures retain persisted status, attempts and `lastError`; structured API/worker logs include lifecycle metadata without logging submitted text or idempotency values.
+- **Crash/restart recovery:** stale `running` work is returned to retryable state on worker startup using a simple single-node lease assumption.
+
+## Tests and runtime verification
+
+```bash
+PYTHONPATH=artifacts/flyrank-background-jobs \
+python -m pytest artifacts/flyrank-background-jobs/tests -q
+
+python artifacts/flyrank-background-jobs/verification/correlated_runtime_trace.py
+```
+
+GitHub Actions run `32712518867` passed the current repaired branch with:
+
+- clean `pip install .`;
+- **10 lifecycle tests passed**;
+- a real API + separate worker trace proving `202`, `pending → running → retrying → running → completed`, terminal failure and restart persistence;
+- duplicate submissions proving one job ID / one persisted job row / one execution;
+- current markers `A9_CORRELATED_LIFECYCLE_GATE=PASS` and `A9_IDEMPOTENCY_RETRY_RESTART_GATE=PASS`.
+
+See `REQUIREMENTS_AUDIT.md`, `VERIFICATION_EVIDENCE.md`, and `SOURCE_GAP_AND_ASSUMPTIONS.md` for the recovered-S3 mapping, evidence details and implementation-choice boundary.
+
+Recovered S3 currently defines no separate explicit S4 prompt/rematch exercise for Assignment 9.
