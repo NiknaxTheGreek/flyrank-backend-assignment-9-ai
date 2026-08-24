@@ -142,16 +142,18 @@ jobs:
           from pathlib import Path
 
           data = json.loads(Path('artifacts/flyrank-background-jobs/verification/e2e-observations.json').read_text())
+          snapshot = json.loads(Path('artifacts/flyrank-background-jobs/verification/database-snapshot.json').read_text())
           idem = data['idempotency']
           transient = data['transientFailure']
           failed = data['persistentFailure']
           restart = data['afterRestart']
+          idem_row = next(row for row in snapshot if row['id'] == idem['first']['jobId'])
 
           assert idem['firstHttpStatus'] == 202
           assert idem['secondHttpStatus'] == 202
           assert idem['sameJobId'] is True
           assert idem['persistedMatchingJobCount'] == 1
-          assert idem['completedState']['executionCount'] == 1
+          assert idem_row['execution_count'] == 1
           assert transient['retryingState']['status'] == 'retrying'
           assert transient['completedState']['status'] == 'completed'
           assert failed['failedState']['status'] == 'failed'
