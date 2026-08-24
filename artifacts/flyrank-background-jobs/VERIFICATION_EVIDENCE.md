@@ -1,42 +1,52 @@
-# Verification evidence
+# Assignment 9 verification evidence
 
-The initial checkpoint was strengthened on 2026-08-23 with an isolated, correlated FastAPI-and-worker runtime trace. It records direct API status observations, structured process logs, process IDs, a SQLite query snapshot, and fresh automated-check transcripts under `verification/`.
+The strongest current checkpoint is GitHub Actions run `32712518867` on 2026-08-24. It executed the current repository code from a clean checkout rather than relying only on previously committed evidence files.
 
-## Evidence locations
+## Current GitHub Actions checkpoint
 
-- `verification/e2e-observations.json`
-- `verification/api-e2e.log` and `verification/api.log`
-- `verification/worker-e2e.log` and `verification/worker.log`
-- `verification/database-snapshot.json`
-- `verification/correlated-runtime-observations.json` — strongest lifecycle proof; includes API/worker process IDs, direct `running` observations, and restart persistence.
-- `verification/correlated-api.log` and `verification/correlated-worker.log` — correlated JSON lifecycle events by job ID and process ID.
-- `verification/correlated-runtime-database-snapshot.json`
-- `verification/workspace-typecheck.txt`
-- `verification/python-test-results.txt`
+The run passed:
 
-## Completed checkpoints
+1. clean repository installation with `python -m pip install .`;
+2. backend compilation;
+3. **10 Python lifecycle tests**;
+4. an isolated real FastAPI process plus a distinct real worker process;
+5. a correlated transient lifecycle observed as `pending → running → retrying → running → completed` with result HTTP `200`;
+6. a persistent retryable failure that exhausted three attempts, became `failed`, retained `lastError`, and returned result-not-available HTTP `409`;
+7. API/worker restart with the completed result still available;
+8. duplicate submissions using the same `Idempotency-Key` returning the same job ID;
+9. exactly one persisted matching job row and one execution for that idempotent submission;
+10. current runtime evidence uploaded as the `assignment-9-background-job-evidence` Actions artifact.
 
-1. A normal job returned `202`, was observed as `pending` with attempt count `0`, then completed and returned a text-analysis result.
-2. Two submissions with one `Idempotency-Key` returned the same identifier; the persisted matching-job count was `1`, and its completed execution count in the database snapshot was `1`.
-3. `transient` was observed as `retrying` at attempt `1`, then completed at attempt `2`.
-4. `permanent` reached terminal `failed` at attempt `3` and returned the documented `409` result-not-available response.
-5. Both API and worker were restarted; the completed job and result remained available with `persistenceVerified: true`.
+The workflow printed both acceptance markers:
 
-## Correlated runtime trace
+```text
+A9_CORRELATED_LIFECYCLE_GATE=PASS
+A9_IDEMPOTENCY_RETRY_RESTART_GATE=PASS
+```
 
-The current evidence bundle is the authoritative acceptance trace:
+## Repository evidence locations
 
-1. An isolated FastAPI process accepted the recorded transient job with HTTP `202` while it was `pending`.
-2. A separate worker process claimed that exact ID, emitted `running`, scheduled a controlled transient retry, claimed it again, then completed it. The direct status observations preserve `pending → running → retrying → running → completed`; the result endpoint returned `200`.
-3. A separate persistent-failure job was directly observed as `running`, `retrying`, then terminal `failed` at attempt 3; its result endpoint returned `409`.
-4. The recorded API and worker PIDs are distinct, then both change after a controlled restart. The completed transient job's status and result remained available after restart.
-5. `correlated-api.log` records `api_started` and `job_accepted`; `correlated-worker.log` records `worker_started`, `job_claimed`, `job_execution_started`, retry scheduling, completion, and terminal failure. Each event includes the same job ID and worker process ID.
+The project also retains the earlier reproducible evidence harnesses and captured outputs under `verification/`, including:
 
-The evidence harness sets `JOB_EXECUTION_HOLD_SECONDS=0.45` only inside its isolated processes, solely to make the otherwise fast real `running` state observable. Normal application behavior retains the default value of `0`.
+- `correlated_runtime_trace.py` — launches its own API and worker processes against an isolated SQLite database, records process IDs and lifecycle observations, and verifies restart persistence;
+- `correlated-runtime-observations.json`;
+- `correlated-runtime-database-snapshot.json`;
+- `correlated-api.log` and `correlated-worker.log`;
+- `e2e_checkpoint.py` — exercises normal completion, duplicate submission, transient retry, persistent failure and restart verification;
+- `e2e-observations.json`;
+- `database-snapshot.json`;
+- `python-test-results.txt` and `workspace-typecheck.txt` from the earlier environment.
 
-## Automated checks
+## What the evidence proves against recovered S3
 
-- Frontend and full workspace TypeScript checks: passed; exact transcript in `verification/workspace-typecheck.txt`.
-- Python lifecycle suite: `10 passed, 1 warning in 4.27s`; exact transcript in `verification/python-test-results.txt`.
+- **202 Accepted:** the API accepts work before completion and returns a job ID.
+- **Background execution:** the API and worker are independent processes; the worker performs the operation outside the HTTP request lifecycle.
+- **Status/result:** clients can inspect persisted state and retrieve completed output.
+- **Idempotency:** duplicate submissions with one key resolve to one persisted job; completion-side-effect protection is also tested.
+- **Retries:** transient failure is retried and succeeds; persistent retryable failure exhausts the bounded budget.
+- **Observability:** failed state, attempt count, `lastError`, job ID and structured worker lifecycle events remain inspectable.
+- **Persistence:** a completed job/result survives API and worker process restart.
 
-Human-vs-AI rematch comparison remains pending until a human version is supplied.
+The test harness may set a short `JOB_EXECUTION_HOLD_SECONDS` only to make the otherwise fast real `running` state observable. Normal application behavior keeps the default at `0`.
+
+Recovered S3 currently defines no separate explicit S4 prompt/rematch exercise for Assignment 9.
