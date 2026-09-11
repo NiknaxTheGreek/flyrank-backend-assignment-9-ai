@@ -1,0 +1,64 @@
+name: AI Fluency Assignment 9 Evidence
+
+on:
+  push:
+    branches:
+      - ai-fluency-assignment-9
+    paths:
+      - '.github/workflows/ai-fluency-assignment-9-evidence.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-live-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      LIVE_URL: https://nicholas-perikli-ai-fluency-9.onrender.com
+    steps:
+      - name: Create evidence directory
+        run: mkdir -p evidence
+
+      - name: Verify live HTTPS response and page content
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error \
+            --retry 6 --retry-delay 5 --retry-all-errors \
+            --dump-header evidence/http_headers.txt \
+            --output evidence/live_page.html \
+            "$LIVE_URL"
+          grep -Fq 'Nicholas Perikli' evidence/live_page.html
+          {
+            echo "Live URL: $LIVE_URL"
+            echo "Verification UTC: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "Expected text found: Nicholas Perikli"
+            echo "HTTP verification: PASS"
+          } > evidence/verification.txt
+
+      - name: Capture desktop and mobile screenshots from live URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          test -n "$BROWSER"
+          "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+            --window-size=1440,900 \
+            --virtual-time-budget=3000 \
+            --screenshot=evidence/assignment9_render_desktop.png \
+            "$LIVE_URL"
+          "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
+            --window-size=390,844 \
+            --user-agent='Mozilla/5.0 (Linux; Android 16; Mobile) AppleWebKit/537.36 Chrome/140 Safari/537.36' \
+            --virtual-time-budget=3000 \
+            --screenshot=evidence/assignment9_render_mobile.png \
+            "$LIVE_URL"
+          test -s evidence/assignment9_render_desktop.png
+          test -s evidence/assignment9_render_mobile.png
+
+      - name: Upload evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-fluency-assignment-9-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90
