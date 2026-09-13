@@ -1,0 +1,67 @@
+name: AI Fluency - Deploy Astro to Cloudflare Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ai-fluency-assignment-9
+    paths:
+      - 'ai-fluency-assignment-9/**'
+      - '.github/workflows/ai-fluency-cloudflare-pages.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-fluency-cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-fluency-assignment-9
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: nicholas-perikli-ai-fluency-9
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ai-fluency-assignment-9/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Astro site
+        run: npm run build
+
+      - name: Verify Cloudflare credentials are configured
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN GitHub secret'; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID GitHub secret'; exit 1; }
+
+      - name: Ensure Cloudflare Pages project exists
+        run: |
+          set -euo pipefail
+          PROJECTS="$(npx --yes wrangler@4 pages project list)"
+          if printf '%s\n' "$PROJECTS" | grep -Fq "$CLOUDFLARE_PAGES_PROJECT"; then
+            echo "Pages project already exists: $CLOUDFLARE_PAGES_PROJECT"
+          else
+            npx --yes wrangler@4 pages project create "$CLOUDFLARE_PAGES_PROJECT" --production-branch=ai-fluency-assignment-9
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          npx --yes wrangler@4 pages deploy dist \
+            --project-name="$CLOUDFLARE_PAGES_PROJECT" \
+            --branch=ai-fluency-assignment-9 \
+            --commit-hash="${GITHUB_SHA}"
